@@ -1,9 +1,30 @@
 import React, { useState } from "react";
-import { Drawer, IconButton, Button, Typography, Box, Grid, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  Drawer,
+  IconButton,
+  Button,
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Slider,
+} from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers";
 
-const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews, filters, setFilters, clearFilters }) => {
+const SidePanel = ({
+  drawerOpen,
+  toggleDrawer,
+  toggleSorting,
+  toggleColumnViews,
+  filters,
+  setFilters,
+  clearFilters,
+}) => {
   const [showFilters, setShowFilters] = useState(false);
 
   const handleFilterChange = (e) => {
@@ -13,6 +34,14 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
 
   const handleDateChange = (name, date) => {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: date }));
+  };
+
+  const handlePriceChange = (event, newValue) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      priceFrom: newValue[0],
+      priceTo: newValue[1],
+    }));
   };
 
   const toggleFilters = () => {
@@ -32,12 +61,14 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
       }}
     >
       <Box p={2}>
-        <Typography variant="h6" fontWeight="bold" gutterBottom textAlign="center">
-          Side Panel
-        </Typography>
-        <IconButton onClick={toggleDrawer} style={{ position: "absolute", top: 12, right: 0 }}>
-          <CloseIcon />
-        </IconButton>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            Side Panel
+          </Typography>
+          <IconButton onClick={toggleDrawer}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <Button
@@ -103,8 +134,8 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
             </Button>
           </Grid>
           {showFilters && (
-            <>
-              <Grid item xs={12}>
+            <Grid item xs={12}>
+              <Box mt={2}>
                 <TextField
                   label="Name"
                   name="name"
@@ -112,8 +143,8 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
                   onChange={handleFilterChange}
                   fullWidth
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box mt={2}>
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
@@ -121,18 +152,19 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
                     value={filters.category}
                     onChange={handleFilterChange}
                   >
-                    <MenuItem value=""><em>None</em></MenuItem>
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
                     <MenuItem value="Activity">Activity</MenuItem>
                     <MenuItem value="Clothing">Clothing</MenuItem>
                     <MenuItem value="Home">Home</MenuItem>
-                    <MenuItem value="Pets">Pets</MenuItem>Automotive
+                    <MenuItem value="Pets">Pets</MenuItem>
                     <MenuItem value="Automotive">Automotive</MenuItem>
-                
-                    {/* can add more categories here  */}
+                    {/* can add more categories here*/}
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box mt={2}>
                 <FormControl fullWidth>
                   <InputLabel>Subcategory</InputLabel>
                   <Select
@@ -140,43 +172,60 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
                     value={filters.subcategory}
                     onChange={handleFilterChange}
                   >
-                    <MenuItem value=""><em>None</em></MenuItem>
-                    <MenuItem value="Nutrition"><em>Nutrition</em></MenuItem>
-                    <MenuItem value="Mens"><em>Mens</em></MenuItem>
-                    <MenuItem value="Outdoors"><em>Outdoors</em></MenuItem>
-                    <MenuItem value="Cleaning"><em>Cleaning</em></MenuItem>
-                    <MenuItem value="Aquarium"><em>Aquarium</em></MenuItem>
-                    
-                    
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="Nutrition">Nutrition</MenuItem>
+                    <MenuItem value="Mens">Mens</MenuItem>
+                    <MenuItem value="Outdoors">Outdoors</MenuItem>
+                    <MenuItem value="Cleaning">Cleaning</MenuItem>
+                    <MenuItem value="Aquarium">Aquarium</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box mt={2}>
                 <DatePicker
-                  label="Created At"
-                  value={filters.createdAt}
-                  onChange={(date) => handleDateChange("createdAt", date)}
+                  label="Created At From"
+                  value={filters.createdAtFrom}
+                  onChange={(date) => handleDateChange("createdAtFrom", date)}
                   renderInput={(params) => <TextField {...params} fullWidth />}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box mt={2}>
                 <DatePicker
-                  label="Updated At"
-                  value={filters.updatedAt}
-                  onChange={(date) => handleDateChange("updatedAt", date)}
+                  label="Created At To"
+                  value={filters.createdAtTo}
+                  onChange={(date) => handleDateChange("createdAtTo", date)}
                   renderInput={(params) => <TextField {...params} fullWidth />}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Price"
-                  name="price"
-                  value={filters.price}
-                  onChange={handleFilterChange}
-                  fullWidth
+              </Box>
+              <Box mt={2}>
+                <DatePicker
+                  label="Updated At From"
+                  value={filters.updatedAtFrom}
+                  onChange={(date) => handleDateChange("updatedAtFrom", date)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box mt={2}>
+                <DatePicker
+                  label="Updated At To"
+                  value={filters.updatedAtTo}
+                  onChange={(date) => handleDateChange("updatedAtTo", date)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              </Box>
+              <Box mt={2}>
+                <Typography gutterBottom>Price Range</Typography>
+                <Slider
+                  value={[filters.priceFrom || 0, filters.priceTo || 200]}
+                  onChange={handlePriceChange}
+                  valueLabelDisplay="auto"
+                  min={0}
+                  max={300}
+                />
+              </Box>
+              <Box mt={2}>
                 <Button
                   variant="contained"
                   fullWidth
@@ -191,8 +240,8 @@ const SidePanel = ({ drawerOpen, toggleDrawer, toggleSorting, toggleColumnViews,
                 >
                   Clear Filters
                 </Button>
-              </Grid>
-            </>
+              </Box>
+            </Grid>
           )}
         </Grid>
       </Box>

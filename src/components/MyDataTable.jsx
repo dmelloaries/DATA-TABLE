@@ -28,9 +28,14 @@ const MyDataTable = () => {
     name: '',
     category: '',
     subcategory: '',
-    createdAt: null,
-    updatedAt: null,
-    price: ''
+    createdAtFrom: null,
+    createdAtTo: null,
+    updatedAtFrom: null,
+    updatedAtTo: null,
+    priceFrom: '',
+    priceTo: ''
+    
+
   });
 
   const columns = useMemo(() => [
@@ -68,13 +73,18 @@ const MyDataTable = () => {
 
   const filteredData = useMemo(() => {
     return sampleData.filter((row) => {
+      const createdAt = dayjs(row.createdAt);
+      const updatedAt = dayjs(row.updatedAt);
       return (
         (!filters.name || row.name.toLowerCase().includes(filters.name.toLowerCase())) &&
         (!filters.category || row.category === filters.category) &&
         (!filters.subcategory || row.subcategory === filters.subcategory) &&
-        (!filters.createdAt || dayjs(row.createdAt).isSame(filters.createdAt, 'day')) &&
-        (!filters.updatedAt || dayjs(row.updatedAt).isSame(filters.updatedAt, 'day')) &&
-        (!filters.price || row.price === parseFloat(filters.price))
+        (!filters.createdAtFrom || createdAt.isAfter(dayjs(filters.createdAtFrom).subtract(1, 'day'))) &&
+        (!filters.createdAtTo || createdAt.isBefore(dayjs(filters.createdAtTo).add(1, 'day'))) &&
+        (!filters.updatedAtFrom || updatedAt.isAfter(dayjs(filters.updatedAtFrom).subtract(1, 'day'))) &&
+        (!filters.updatedAtTo || updatedAt.isBefore(dayjs(filters.updatedAtTo).add(1, 'day'))) &&
+        (!filters.priceFrom || row.price >= parseFloat(filters.priceFrom)) &&
+        (!filters.priceTo || row.price <= parseFloat(filters.priceTo))
       );
     });
   }, [sampleData, filters]);
@@ -90,6 +100,8 @@ const MyDataTable = () => {
   const toggleSorting = () => {
     setSortingOpen(!sortingOpen);
   };
+
+  
 
   const toggleColumnViews = () => {
     setColumnViewsOpen(!columnViewsOpen);
@@ -117,9 +129,12 @@ const MyDataTable = () => {
       name: '',
       category: '',
       subcategory: '',
-      createdAt: null,
-      updatedAt: null,
-      price: ''
+      createdAtFrom: null,
+      createdAtTo: null,
+      updatedAtFrom: null,
+      updatedAtTo: null,
+      priceFrom: '',
+      priceTo: ''
     });
   };
 
