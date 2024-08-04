@@ -5,6 +5,7 @@ import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
 import UseData from "../utils/UseData";
 import { formatDate } from "../api/formatDate";
 import SidePanel from "./SidePanel";
+import { sortData, formatData } from "../api/sorting";
 
 const MyDataTable = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -20,6 +21,8 @@ const MyDataTable = () => {
     price: true,
     sale_price: true,
   });
+  const [sortDirection, setSortDirection] = useState(''); // 'asc', 'desc', or ''
+  const [sortColumn, setSortColumn] = useState('');
 
   const columns = useMemo(() => [
     { name: "id", label: "ID" },
@@ -54,14 +57,9 @@ const MyDataTable = () => {
 
   const filteredColumns = columns.filter(col => visibleColumns[col.name]);
 
-  const formattedData = useMemo(() => 
-    sampleData.map((item) => 
-      filteredColumns.map(col => 
-        col.name === "createdAt" || col.name === "updatedAt" ? formatDate(item[col.name]) : item[col.name]
-      )
-    ),
-    [sampleData, filteredColumns]
-  );
+  const sortedData = useMemo(() => sortData(sampleData, sortColumn, sortDirection), [sampleData, sortColumn, sortDirection]);
+
+  const formattedData = useMemo(() => formatData(sortedData, filteredColumns), [sortedData, filteredColumns]);
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -80,6 +78,16 @@ const MyDataTable = () => {
       ...prev,
       [column]: !prev[column],
     }));
+  };
+
+  const handleSortingChange = (column, direction) => {
+    setSortColumn(column);
+    setSortDirection(direction);
+  };
+
+  const clearSorting = () => {
+    setSortColumn('');
+    setSortDirection('');
   };
 
   return (
@@ -130,6 +138,8 @@ const MyDataTable = () => {
                 select
                 SelectProps={{ native: true }}
                 variant="outlined"
+                onChange={(e) => handleSortingChange(col.name, e.target.value)}
+                value={sortColumn === col.name ? sortDirection : ''}
               >
                 <option value="">None</option>
                 <option value="asc">Ascending</option>
@@ -148,10 +158,11 @@ const MyDataTable = () => {
               },
             }}
             onClick={() => {
-              // sorting is pending ;
+              clearSorting();
+              toggleSorting();
             }}
           >
-            Apply Sorting
+            Clear Sorting
           </Button>
         </Box>
       </Drawer>
