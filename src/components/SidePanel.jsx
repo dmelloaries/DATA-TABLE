@@ -21,6 +21,7 @@ const SidePanel = ({
   toggleDrawer,
   toggleSorting,
   toggleColumnViews,
+  toggleFilters,
   filters,
   setFilters,
   clearFilters,
@@ -42,10 +43,6 @@ const SidePanel = ({
       priceFrom: newValue[0],
       priceTo: newValue[1],
     }));
-  };
-
-  const toggleFilters = () => {
-    setShowFilters((prevShowFilters) => !prevShowFilters);
   };
 
   return (
@@ -84,21 +81,6 @@ const SidePanel = ({
               onClick={toggleSorting}
             >
               Sorting
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{
-                backgroundColor: "lightgrey",
-                color: "black",
-                "&:hover": {
-                  backgroundColor: "grey",
-                },
-              }}
-            >
-              Grouping
             </Button>
           </Grid>
           <Grid item xs={6}>
