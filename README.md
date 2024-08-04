@@ -1,8 +1,21 @@
-# React + Vite
+# Data Table Created Using MUI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+### Fuzzy Text Filter with Side Panel
+- Utilize fuzzy text matching to filter data .
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Sorting Data with Side Panel
+- Sort data in ascending or descending order using the side panel.
+
+### Show/Hide Columns with Side Panel
+- Customize view by showing or hiding columns using side panel.
+
+### Filter & Dropdown
+- Apply filters and use dropdowns .
+
+### Filtering on Date Range
+- Filter data based on a specific date range .
+
+### Filtering on Price Range
+- Filter data within a specified price range .
