@@ -1,13 +1,14 @@
 import React from 'react';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import MyDataTable from './components/MyDataTable';
 
-
-function App() {
+const App = () => {
   return (
-    <div className="App">
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MyDataTable />
-    </div>
+    </LocalizationProvider>
   );
-}
+};
 
 export default App;
