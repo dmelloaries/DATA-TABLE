@@ -1,14 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import MUIDataTable from "mui-datatables";
-import { Drawer, IconButton, Button, Typography, Box, Grid, Tooltip } from "@mui/material";
+import { Drawer, IconButton, Button, Typography, Box, Tooltip, TextField, FormControlLabel, Checkbox } from "@mui/material";
 import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
 import UseData from "../utils/UseData";
 import { formatDate } from "../api/formatDate";
+import SidePanel from "./SidePanel";
 
 const MyDataTable = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sortingOpen, setSortingOpen] = useState(false);
+  const [columnViewsOpen, setColumnViewsOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState({
+    id: true,
+    name: true,
+    category: true,
+    subcategory: true,
+    createdAt: true,
+    updatedAt: true,
+    price: true,
+    sale_price: true,
+  });
 
-  const columns = [
+  const columns = useMemo(() => [
     { name: "id", label: "ID" },
     { name: "name", label: "Name" },
     { name: "category", label: "Category" },
@@ -29,7 +42,7 @@ const MyDataTable = () => {
     },
     { name: "price", label: "Price" },
     { name: "sale_price", label: "Sale Price" },
-  ];
+  ], []);
 
   const options = {
     selectableRows: "none",
@@ -39,37 +52,61 @@ const MyDataTable = () => {
 
   const sampleData = UseData;
 
-  const formattedData = sampleData.map((item) => [
-    item.id,
-    item.name,
-    item.category,
-    item.subcategory,
-    item.createdAt,
-    item.updatedAt,
-    item.price,
-    item.sale_price,
-  ]);
+  const filteredColumns = columns.filter(col => visibleColumns[col.name]);
+
+  const formattedData = useMemo(() => 
+    sampleData.map((item) => 
+      filteredColumns.map(col => 
+        col.name === "createdAt" || col.name === "updatedAt" ? formatDate(item[col.name]) : item[col.name]
+      )
+    ),
+    [sampleData, filteredColumns]
+  );
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
 
+  const toggleSorting = () => {
+    setSortingOpen(!sortingOpen);
+  };
+
+  const toggleColumnViews = () => {
+    setColumnViewsOpen(!columnViewsOpen);
+  };
+
+  const handleColumnVisibilityChange = (column) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [column]: !prev[column],
+    }));
+  };
+
   return (
     <div style={{ position: "relative" }}>
-      <Tooltip title="Side Panel" arrow>
-        <IconButton
-          onClick={toggleDrawer}
-          style={{ position: "absolute", top: 12, right: 0, zIndex: 1201 }}
-        >
-          {drawerOpen ? <CloseIcon /> : <MenuIcon />}
-        </IconButton>
-      </Tooltip>
+      {!drawerOpen && !sortingOpen && !columnViewsOpen && (
+        <Tooltip title="Side Panel" arrow>
+          <IconButton
+            onClick={toggleDrawer}
+            style={{ position: "absolute", top: 12, right: 0, zIndex: 1201 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      <SidePanel 
+        drawerOpen={drawerOpen} 
+        toggleDrawer={toggleDrawer} 
+        toggleSorting={toggleSorting} 
+        toggleColumnViews={toggleColumnViews} 
+      />
 
       <Drawer
         anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer}
-        variant="persistent"
+        open={sortingOpen}
+        onClose={toggleSorting}
+        variant="temporary"
         sx={{
           width: 400,
           flexShrink: 0,
@@ -77,79 +114,88 @@ const MyDataTable = () => {
         }}
       >
         <Box p={2}>
-          <Typography variant="h6" fontWeight="bold" gutterBottom textAlign="center">
-            Side Panel
-          </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">
+              Sorting Options
+            </Typography>
+            <IconButton onClick={toggleSorting}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          {columns.map((col) => (
+            <Box key={col.name} mb={2}>
+              <Typography variant="body1">{col.label}</Typography>
+              <TextField
+                fullWidth
+                select
+                SelectProps={{ native: true }}
+                variant="outlined"
+              >
+                <option value="">None</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </TextField>
+            </Box>
+          ))}
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              backgroundColor: "lightgrey",
+              color: "black",
+              "&:hover": {
+                backgroundColor: "grey",
+              },
+            }}
+            onClick={() => {
+              // sorting is pending ;
+            }}
+          >
+            Apply Sorting
+          </Button>
+        </Box>
+      </Drawer>
 
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "lightgrey",
-                  color: "black",
-                  "&:hover": {
-                    backgroundColor: "grey",
-                  },
-                }}
-              >
-                Sorting
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "lightgrey",
-                  color: "black",
-                  "&:hover": {
-                    backgroundColor: "grey",
-                  },
-                }}
-              >
-                Grouping
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "lightgrey",
-                  color: "black",
-                  "&:hover": {
-                    backgroundColor: "grey",
-                  },
-                }}
-              >
-                Filtering
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "lightgrey",
-                  color: "black",
-                  "&:hover": {
-                    backgroundColor: "grey",
-                  },
-                }}
-              >
-                Column Views
-              </Button>
-            </Grid>
-          </Grid>
+      <Drawer
+        anchor="right"
+        open={columnViewsOpen}
+        onClose={toggleColumnViews}
+        variant="temporary"
+        sx={{
+          width: 400,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": { width: 400, boxSizing: "border-box" },
+        }}
+      >
+        <Box p={2}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">
+              Show/Hide Columns
+            </Typography>
+            <IconButton onClick={toggleColumnViews}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          {columns.map((col) => (
+            <Box key={col.name} mb={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={visibleColumns[col.name]}
+                    onChange={() => handleColumnVisibilityChange(col.name)}
+                  />
+                }
+                label={col.label}
+              />
+            </Box>
+          ))}
         </Box>
       </Drawer>
 
       <MUIDataTable
         title={"DATA TABLE"}
         data={formattedData}
-        columns={columns}
+        columns={filteredColumns}
         options={options}
       />
     </div>
