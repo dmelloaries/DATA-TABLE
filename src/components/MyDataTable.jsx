@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MUIDataTable from "mui-datatables";
-import { Drawer, IconButton, Button, Typography, Box } from "@mui/material";
+import { Drawer, IconButton, Button, Typography, Box, Grid, Tooltip } from "@mui/material";
 import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
 import UseData from "../utils/UseData";
 import { formatDate } from "../api/formatDate";
@@ -35,8 +35,6 @@ const MyDataTable = () => {
     selectableRows: "none",
     rowsPerPage: 10,
     print: false,
-   
-    
   };
 
   const sampleData = UseData;
@@ -57,37 +55,94 @@ const MyDataTable = () => {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <IconButton
-        onClick={toggleDrawer}
-        style={{ position: 'absolute', top: 12, right: 0, zIndex: 1201 }}
-      >
-        {drawerOpen ? <CloseIcon /> : <MenuIcon />}
-      </IconButton>
+    <div style={{ position: "relative" }}>
+      <Tooltip title="Side Panel" arrow>
+        <IconButton
+          onClick={toggleDrawer}
+          style={{ position: "absolute", top: 12, right: 0, zIndex: 1201 }}
+        >
+          {drawerOpen ? <CloseIcon /> : <MenuIcon />}
+        </IconButton>
+      </Tooltip>
 
       <Drawer
         anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer}
         variant="persistent"
-        sx={{ width: 400, flexShrink: 0, '& .MuiDrawer-paper': { width: 400, boxSizing: 'border-box' } }}
+        sx={{
+          width: 400,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": { width: 400, boxSizing: "border-box" },
+        }}
       >
         <Box p={2}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" fontWeight="bold" gutterBottom textAlign="center">
             Side Panel
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-             
-              console.log('Button in side panel clicked');
-              
-            }}
-          >
-            Perform Operation
-          </Button>
-          
+
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  backgroundColor: "lightgrey",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                }}
+              >
+                Sorting
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  backgroundColor: "lightgrey",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                }}
+              >
+                Grouping
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  backgroundColor: "lightgrey",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                }}
+              >
+                Filtering
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  backgroundColor: "lightgrey",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                }}
+              >
+                Column Views
+              </Button>
+            </Grid>
+          </Grid>
         </Box>
       </Drawer>
 
