@@ -6,6 +6,7 @@ import UseData from "../utils/UseData";
 import { formatDate } from "../api/formatDate";
 import SidePanel from "./SidePanel";
 import { sortData, formatData } from "../api/sorting";
+import dayjs from "dayjs";
 
 const MyDataTable = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -23,6 +24,14 @@ const MyDataTable = () => {
   });
   const [sortDirection, setSortDirection] = useState(''); // 'asc', 'desc', or ''
   const [sortColumn, setSortColumn] = useState('');
+  const [filters, setFilters] = useState({
+    name: '',
+    category: '',
+    subcategory: '',
+    createdAt: null,
+    updatedAt: null,
+    price: ''
+  });
 
   const columns = useMemo(() => [
     { name: "id", label: "ID" },
@@ -57,7 +66,20 @@ const MyDataTable = () => {
 
   const filteredColumns = columns.filter(col => visibleColumns[col.name]);
 
-  const sortedData = useMemo(() => sortData(sampleData, sortColumn, sortDirection), [sampleData, sortColumn, sortDirection]);
+  const filteredData = useMemo(() => {
+    return sampleData.filter((row) => {
+      return (
+        (!filters.name || row.name.toLowerCase().includes(filters.name.toLowerCase())) &&
+        (!filters.category || row.category === filters.category) &&
+        (!filters.subcategory || row.subcategory === filters.subcategory) &&
+        (!filters.createdAt || dayjs(row.createdAt).isSame(filters.createdAt, 'day')) &&
+        (!filters.updatedAt || dayjs(row.updatedAt).isSame(filters.updatedAt, 'day')) &&
+        (!filters.price || row.price === parseFloat(filters.price))
+      );
+    });
+  }, [sampleData, filters]);
+
+  const sortedData = useMemo(() => sortData(filteredData, sortColumn, sortDirection), [filteredData, sortColumn, sortDirection]);
 
   const formattedData = useMemo(() => formatData(sortedData, filteredColumns), [sortedData, filteredColumns]);
 
@@ -90,6 +112,17 @@ const MyDataTable = () => {
     setSortDirection('');
   };
 
+  const clearFilters = () => {
+    setFilters({
+      name: '',
+      category: '',
+      subcategory: '',
+      createdAt: null,
+      updatedAt: null,
+      price: ''
+    });
+  };
+
   return (
     <div style={{ position: "relative" }}>
       {!drawerOpen && !sortingOpen && !columnViewsOpen && (
@@ -107,7 +140,10 @@ const MyDataTable = () => {
         drawerOpen={drawerOpen} 
         toggleDrawer={toggleDrawer} 
         toggleSorting={toggleSorting} 
-        toggleColumnViews={toggleColumnViews} 
+        toggleColumnViews={toggleColumnViews}
+        filters={filters}
+        setFilters={setFilters}
+        clearFilters={clearFilters}
       />
 
       <Drawer
