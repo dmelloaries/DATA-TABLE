@@ -1,17 +1,34 @@
 import React, { useState, useMemo } from "react";
 import MUIDataTable from "mui-datatables";
-import { Drawer, IconButton, Button, Typography, Box, Tooltip, TextField, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  Drawer,
+  IconButton,
+  Button,
+  Typography,
+  Box,
+  Tooltip,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  Slider,
+} from "@mui/material";
 import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 import UseData from "../utils/UseData";
 import { formatDate } from "../api/formatDate";
 import SidePanel from "./SidePanel";
 import { sortData, formatData } from "../api/sorting";
-import dayjs from "dayjs";
 
 const MyDataTable = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
   const [columnViewsOpen, setColumnViewsOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     id: true,
     name: true,
@@ -28,9 +45,12 @@ const MyDataTable = () => {
     name: '',
     category: '',
     subcategory: '',
-    createdAt: null,
-    updatedAt: null,
-    price: ''
+    createdAtFrom: null,
+    createdAtTo: null,
+    updatedAtFrom: null,
+    updatedAtTo: null,
+    priceFrom: '',
+    priceTo: ''
   });
 
   const columns = useMemo(() => [
@@ -68,13 +88,18 @@ const MyDataTable = () => {
 
   const filteredData = useMemo(() => {
     return sampleData.filter((row) => {
+      const createdAt = dayjs(row.createdAt);
+      const updatedAt = dayjs(row.updatedAt);
       return (
         (!filters.name || row.name.toLowerCase().includes(filters.name.toLowerCase())) &&
         (!filters.category || row.category === filters.category) &&
         (!filters.subcategory || row.subcategory === filters.subcategory) &&
-        (!filters.createdAt || dayjs(row.createdAt).isSame(filters.createdAt, 'day')) &&
-        (!filters.updatedAt || dayjs(row.updatedAt).isSame(filters.updatedAt, 'day')) &&
-        (!filters.price || row.price === parseFloat(filters.price))
+        (!filters.createdAtFrom || createdAt.isAfter(dayjs(filters.createdAtFrom).subtract(1, 'day'))) &&
+        (!filters.createdAtTo || createdAt.isBefore(dayjs(filters.createdAtTo).add(1, 'day'))) &&
+        (!filters.updatedAtFrom || updatedAt.isAfter(dayjs(filters.updatedAtFrom).subtract(1, 'day'))) &&
+        (!filters.updatedAtTo || updatedAt.isBefore(dayjs(filters.updatedAtTo).add(1, 'day'))) &&
+        (!filters.priceFrom || row.price >= parseFloat(filters.priceFrom)) &&
+        (!filters.priceTo || row.price <= parseFloat(filters.priceTo))
       );
     });
   }, [sampleData, filters]);
@@ -93,6 +118,10 @@ const MyDataTable = () => {
 
   const toggleColumnViews = () => {
     setColumnViewsOpen(!columnViewsOpen);
+  };
+
+  const toggleFilters = () => {
+    setFiltersOpen(!filtersOpen);
   };
 
   const handleColumnVisibilityChange = (column) => {
@@ -117,15 +146,18 @@ const MyDataTable = () => {
       name: '',
       category: '',
       subcategory: '',
-      createdAt: null,
-      updatedAt: null,
-      price: ''
+      createdAtFrom: null,
+      createdAtTo: null,
+      updatedAtFrom: null,
+      updatedAtTo: null,
+      priceFrom: '',
+      priceTo: ''
     });
   };
 
   return (
     <div style={{ position: "relative" }}>
-      {!drawerOpen && !sortingOpen && !columnViewsOpen && (
+      {!drawerOpen && !sortingOpen && !columnViewsOpen && !filtersOpen && (
         <Tooltip title="Side Panel" arrow>
           <IconButton
             onClick={toggleDrawer}
@@ -141,6 +173,7 @@ const MyDataTable = () => {
         toggleDrawer={toggleDrawer} 
         toggleSorting={toggleSorting} 
         toggleColumnViews={toggleColumnViews}
+        toggleFilters={toggleFilters}
         filters={filters}
         setFilters={setFilters}
         clearFilters={clearFilters}
@@ -239,8 +272,110 @@ const MyDataTable = () => {
         </Box>
       </Drawer>
 
+      <Drawer
+        anchor="right"
+        open={filtersOpen}
+        onClose={toggleFilters}
+        variant="temporary"
+        sx={{
+          width: 400,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": { width: 400, boxSizing: "border-box" },
+        }}
+      >
+        <Box p={2}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">
+              Filters
+            </Typography>
+            <IconButton onClick={toggleFilters}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <TextField
+            label="Name"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Category"
+            value={filters.category}
+            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="SubCategory"
+            value={filters.subcategory}
+            onChange={(e) => setFilters({ ...filters, subcategory: e.target.value })}
+            fullWidth
+            margin="normal"
+          />
+          <Box mt={2}>
+            <DatePicker
+              label="Created At From"
+              value={filters.createdAtFrom}
+              onChange={(date) => setFilters({ ...filters, createdAtFrom: date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Box>
+          <Box mt={2}>
+            <DatePicker
+              label="Created At To"
+              value={filters.createdAtTo}
+              onChange={(date) => setFilters({ ...filters, createdAtTo: date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Box>
+          <Box mt={2}>
+            <DatePicker
+              label="Updated At From"
+              value={filters.updatedAtFrom}
+              onChange={(date) => setFilters({ ...filters, updatedAtFrom: date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Box>
+          <Box mt={2}>
+            <DatePicker
+              label="Updated At To"
+              value={filters.updatedAtTo}
+              onChange={(date) => setFilters({ ...filters, updatedAtTo: date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Box>
+          <Box mt={2}>
+            <Typography gutterBottom>Price Range</Typography>
+            <Slider
+              value={[filters.priceFrom || 0, filters.priceTo || 200]}
+              onChange={(event, newValue) => setFilters({ ...filters, priceFrom: newValue[0], priceTo: newValue[1] })}
+              valueLabelDisplay="auto"
+              min={0}
+              max={300}
+            />
+          </Box>
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{
+                backgroundColor: "lightgrey",
+                color: "black",
+                "&:hover": {
+                  backgroundColor: "grey",
+                },
+              }}
+              onClick={clearFilters}
+            >
+              Clear Filters
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
+
       <MUIDataTable
-        title={"DATA TABLE"}
+        title={"Product List"}
         data={formattedData}
         columns={filteredColumns}
         options={options}
